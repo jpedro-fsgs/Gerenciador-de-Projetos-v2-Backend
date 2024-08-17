@@ -12,7 +12,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "projeto")
-public class Projeto {
+public class Projetos {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "projeto_id_gen")
     @SequenceGenerator(name = "projeto_id_gen", sequenceName = "projeto_id_seq", allocationSize = 1)
@@ -47,6 +47,6 @@ public class Projeto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private Usuarios usuario;
 
 }
