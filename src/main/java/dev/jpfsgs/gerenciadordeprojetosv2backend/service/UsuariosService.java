@@ -2,10 +2,10 @@ package dev.jpfsgs.gerenciadordeprojetosv2backend.service;
 
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.AtualizarUsuarioRequestDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.CadastrarUsuarioRequestDTO;
-import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.CriarProjetoRequestDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.UsuarioResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Usuarios;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.UsuariosRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +13,11 @@ import java.util.List;
 @Service
 public class UsuariosService {
     private final UsuariosRepository usuariosRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UsuariosService(UsuariosRepository usuariosRepository) {
+    public UsuariosService(UsuariosRepository usuariosRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.usuariosRepository = usuariosRepository;
+        this.passwordEncoder = bCryptPasswordEncoder;
     }
 
     public List<UsuarioResponseDTO> getAllUsuarios() {
@@ -25,7 +27,7 @@ public class UsuariosService {
     public UsuarioResponseDTO registerUsuario(CadastrarUsuarioRequestDTO usuario){
         Usuarios newUsuario = new Usuarios();
         newUsuario.setUsername(usuario.username().strip());
-        newUsuario.setHashedSenha(usuario.password());
+        newUsuario.setHashedSenha(passwordEncoder.encode(usuario.password()));
         newUsuario.setAtivo(true);
         return new UsuarioResponseDTO(usuariosRepository.save(newUsuario));
     }

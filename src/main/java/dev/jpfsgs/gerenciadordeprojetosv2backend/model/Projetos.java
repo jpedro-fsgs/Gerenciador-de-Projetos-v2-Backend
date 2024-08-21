@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -32,6 +33,7 @@ public class Projetos {
 
     @NotNull
     @Column(name = "criacao", nullable = false)
+    @CreationTimestamp
     private Instant criacao;
 
     @Column(name = "prazo")

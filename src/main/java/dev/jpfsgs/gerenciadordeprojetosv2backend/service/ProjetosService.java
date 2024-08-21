@@ -8,12 +8,11 @@ import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Projetos;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Usuarios;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.ProjetosRepository;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.UsuariosRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProjetosService {
@@ -30,31 +29,32 @@ public class ProjetosService {
         return projetos.stream().filter(projeto -> projeto.getIsPublico()).map(projeto -> new ProjetoPublicoResponseDTO(projeto)).toList();
     }
 
-    public List<ProjetoUsuarioResponseDTO> getProjetosUsuario(Integer id){
-        Optional<Usuarios> usuarioOpt = usuariosRepository.findById(id);
-        if(usuarioOpt.isPresent()){
-            Usuarios usuario = usuarioOpt.get();
-            return usuario.getProjetos().stream().map(projeto -> new ProjetoUsuarioResponseDTO(projeto)).toList();
-        } else {
-            return Collections.emptyList();
-        }
+    public List<ProjetoUsuarioResponseDTO> getProjetosUsuario(Integer usuarioId){
+        Usuarios usuario = usuariosRepository.findById(usuarioId).get();
+        return usuario.getProjetos().stream().map(projeto -> new ProjetoUsuarioResponseDTO(projeto)).toList();
     }
 
-    public ProjetoUsuarioResponseDTO addProjeto(CriarProjetoRequestDTO projeto, Integer id){
+    public ProjetoUsuarioResponseDTO addProjeto(CriarProjetoRequestDTO projeto, Integer usuarioId){
         Projetos newProjeto = new Projetos();
         newProjeto.setNome(projeto.nome());
         newProjeto.setDescricao(projeto.descricao());
         newProjeto.setLink(projeto.link());
         newProjeto.setPrazo(projeto.prazo());
-        newProjeto.setCriacao(Instant.now());
         newProjeto.setIsPublico(projeto.is_publico());
         newProjeto.setIsConcluido(projeto.is_concluido());
-        newProjeto.setUsuario(usuariosRepository.findById(id).get());
+        newProjeto.setUsuario(usuariosRepository.findById(usuarioId).get());
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(newProjeto));
     }
 
-    public ProjetoUsuarioResponseDTO updateProjeto(AtualizarProjetoRequestDTO projeto){
-        Projetos updateProjeto = projetosRepository.findById(projeto.id()).get();
+    public ProjetoUsuarioResponseDTO updateProjeto(AtualizarProjetoRequestDTO projeto, Integer usuarioId){
+        Optional<Projetos> updateProjetoFind = projetosRepository.findById(projeto.id());
+        if(updateProjetoFind.isEmpty()){
+            throw new EntityNotFoundException("Project not found");
+        }
+        Projetos updateProjeto = updateProjetoFind.get();
+        if(!updateProjeto.getUsuario().getId().equals(usuariosRepository.findById(usuarioId).get().getId())){
+            throw new BadCredentialsException("Project does not belong to this user");
+        }
         if(projeto.nome().isPresent()){
             updateProjeto.setNome(projeto.nome().get());
         }
@@ -73,11 +73,34 @@ public class ProjetosService {
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(updateProjeto));
     }
 
-    public void deleteProjeto(Integer id){
-        projetosRepository.deleteById(id);
+    public Integer deleteProjeto(Integer id, Integer usuarioId){
+        Optional<Projetos> deleteProjetoFind = projetosRepository.findById(id);
+        if(deleteProjetoFind.isEmpty()){
+            throw new EntityNotFoundException("Project not found");
+        }
+        Projetos deleteProjeto = deleteProjetoFind.get();
+        if(!deleteProjeto.getUsuario().getId().equals(usuarioId)){
+            throw new BadCredentialsException("Project does not belong to this user");
+        }
+        projetosRepository.delete(deleteProjeto);
+        return id;
     }
 
-    public void deleteManyProjetos(List<Integer> ids){
-        projetosRepository.deleteAllById(ids);
+    public Map<String, Map<Integer, String>> deleteManyProjetos(List<Integer> ids, Integer usuarioId){
+        Map<Integer, String> deleted = new HashMap<>();
+        Map<Integer, String> failed = new HashMap<>();
+        for(Integer id : ids){
+            try{
+                deleteProjeto(id, usuarioId);
+                deleted.put(id, "success");
+            } catch(EntityNotFoundException | BadCredentialsException e) {
+                failed.put(id, e.getMessage());
+            }
+        }
+        Map<String, Map<Integer, String>> result = new HashMap<>();
+        result.put("deleted", deleted);
+        result.put("failed", failed);
+
+        return result;
     }
 }
