@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -37,7 +38,7 @@ public class Projetos {
     private Instant criacao;
 
     @Column(name = "prazo")
-    private Instant prazo;
+    private LocalDate prazo;
 
     @NotNull
     @Column(name = "is_publico", nullable = false)

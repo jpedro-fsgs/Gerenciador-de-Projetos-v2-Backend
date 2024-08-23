@@ -4,6 +4,7 @@ import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Projetos;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 public class ProjetoPublicoResponseDTO {
@@ -12,7 +13,7 @@ public class ProjetoPublicoResponseDTO {
     private final String descricao;
     private final String link;
     private final Instant criacao;
-    private final Instant prazo;
+    private final LocalDate prazo;
     private final Boolean is_concluido;
     private final String usuario;
     private final Integer usuario_id;

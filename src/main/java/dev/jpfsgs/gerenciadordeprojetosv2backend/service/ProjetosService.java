@@ -4,6 +4,7 @@ import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.AtualizarProjetoReq
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.CriarProjetoRequestDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.ProjetoPublicoResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.ProjetoUsuarioResponseDTO;
+import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.ProjetosDeletadosResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Projetos;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Usuarios;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.ProjetosRepository;
@@ -16,25 +17,36 @@ import java.util.*;
 
 @Service
 public class ProjetosService {
-    private ProjetosRepository projetosRepository;
-    private UsuariosRepository usuariosRepository;
+    private final ProjetosRepository projetosRepository;
+    private final UsuariosRepository usuariosRepository;
 
     public ProjetosService(ProjetosRepository projetosRepository, UsuariosRepository usuariosRepository) {
         this.projetosRepository = projetosRepository;
         this.usuariosRepository = usuariosRepository;
     }
 
-    public List<ProjetoPublicoResponseDTO> getAllProjetosPublicos(){
+    public List<ProjetoPublicoResponseDTO> getAllProjetosPublicos() {
         List<Projetos> projetos = projetosRepository.findAll();
-        return projetos.stream().filter(projeto -> projeto.getIsPublico()).map(projeto -> new ProjetoPublicoResponseDTO(projeto)).toList();
+        if (projetos.isEmpty()) {
+            throw new EntityNotFoundException("No projects found");
+        }
+        return projetos.stream().filter(Projetos::getIsPublico).map(ProjetoPublicoResponseDTO::new).toList();
     }
 
-    public List<ProjetoUsuarioResponseDTO> getProjetosUsuario(Integer usuarioId){
-        Usuarios usuario = usuariosRepository.findById(usuarioId).get();
-        return usuario.getProjetos().stream().map(projeto -> new ProjetoUsuarioResponseDTO(projeto)).toList();
+    public List<ProjetoUsuarioResponseDTO> getProjetosUsuario(Integer usuarioId) {
+        Optional<Usuarios> usuariosOptional = usuariosRepository.findById(usuarioId);
+        if (usuariosOptional.isEmpty()) {
+            throw new EntityNotFoundException("User not found");
+        }
+        Usuarios usuario = usuariosOptional.get();
+        return usuario.getProjetos().stream().map(ProjetoUsuarioResponseDTO::new).toList();
     }
 
-    public ProjetoUsuarioResponseDTO addProjeto(CriarProjetoRequestDTO projeto, Integer usuarioId){
+    public ProjetoUsuarioResponseDTO addProjeto(CriarProjetoRequestDTO projeto, Integer usuarioId) {
+        Optional<Usuarios> usuarioOptional = usuariosRepository.findById(usuarioId);
+        if (usuarioOptional.isEmpty()) {
+            throw new EntityNotFoundException("User not found");
+        }
         Projetos newProjeto = new Projetos();
         newProjeto.setNome(projeto.nome());
         newProjeto.setDescricao(projeto.descricao());
@@ -42,65 +54,68 @@ public class ProjetosService {
         newProjeto.setPrazo(projeto.prazo());
         newProjeto.setIsPublico(projeto.is_publico());
         newProjeto.setIsConcluido(projeto.is_concluido());
-        newProjeto.setUsuario(usuariosRepository.findById(usuarioId).get());
+        newProjeto.setUsuario(usuarioOptional.get());
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(newProjeto));
     }
 
-    public ProjetoUsuarioResponseDTO updateProjeto(AtualizarProjetoRequestDTO projeto, Integer usuarioId){
+    public List<ProjetoUsuarioResponseDTO> addManyProjeto(List<CriarProjetoRequestDTO> projetos, Integer usuarioId) {
+        return projetos.stream()
+                .map(newProjeto -> addProjeto(newProjeto, usuarioId))
+                .toList();
+    }
+
+    public ProjetoUsuarioResponseDTO updateProjeto(AtualizarProjetoRequestDTO projeto, Integer usuarioId) {
         Optional<Projetos> updateProjetoFind = projetosRepository.findById(projeto.id());
-        if(updateProjetoFind.isEmpty()){
+        Optional<Usuarios> updateUsuarioFind = usuariosRepository.findById(usuarioId);
+        if (updateProjetoFind.isEmpty()) {
             throw new EntityNotFoundException("Project not found");
         }
+        if (updateUsuarioFind.isEmpty()) {
+            throw new EntityNotFoundException("User not found");
+        }
+
+
         Projetos updateProjeto = updateProjetoFind.get();
-        if(!updateProjeto.getUsuario().getId().equals(usuariosRepository.findById(usuarioId).get().getId())){
+        if (!updateProjeto.getUsuario().getId().equals(updateUsuarioFind.get().getId())) {
             throw new BadCredentialsException("Project does not belong to this user");
         }
-        if(projeto.nome().isPresent()){
-            updateProjeto.setNome(projeto.nome().get());
-        }
-        if(projeto.descricao().isPresent()){
-            updateProjeto.setDescricao(projeto.descricao().get());
-        }
-        if(projeto.link().isPresent()){
-            updateProjeto.setLink(projeto.link().get());
-        }
-        if(projeto.prazo().isPresent()){
-            updateProjeto.setPrazo(projeto.prazo().get());
-        }
-        if(projeto.is_publico().isPresent()){
-            updateProjeto.setIsPublico(projeto.is_publico().get());
-        }
+        projeto.nome().ifPresent(updateProjeto::setNome);
+        projeto.descricao().ifPresent(updateProjeto::setDescricao);
+        projeto.link().ifPresent(updateProjeto::setLink);
+        projeto.prazo().ifPresent(updateProjeto::setPrazo);
+        projeto.prazoNull().ifPresent(prazoNull -> {
+            if (prazoNull) updateProjeto.setPrazo(null);
+        });
+        projeto.is_publico().ifPresent(updateProjeto::setIsPublico);
+
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(updateProjeto));
     }
 
-    public Integer deleteProjeto(Integer id, Integer usuarioId){
+    public void deleteProjeto(Integer id, Integer usuarioId) {
         Optional<Projetos> deleteProjetoFind = projetosRepository.findById(id);
-        if(deleteProjetoFind.isEmpty()){
+        if (deleteProjetoFind.isEmpty()) {
             throw new EntityNotFoundException("Project not found");
         }
         Projetos deleteProjeto = deleteProjetoFind.get();
-        if(!deleteProjeto.getUsuario().getId().equals(usuarioId)){
+        if (!deleteProjeto.getUsuario().getId().equals(usuarioId)) {
             throw new BadCredentialsException("Project does not belong to this user");
         }
         projetosRepository.delete(deleteProjeto);
-        return id;
     }
 
-    public Map<String, Map<Integer, String>> deleteManyProjetos(List<Integer> ids, Integer usuarioId){
-        Map<Integer, String> deleted = new HashMap<>();
+    public ProjetosDeletadosResponseDTO deleteManyProjetos(List<Integer> ids, Integer usuarioId) {
+        List<Integer> deleted = new ArrayList<>();
         Map<Integer, String> failed = new HashMap<>();
-        for(Integer id : ids){
-            try{
+
+        for (Integer id : ids) {
+            try {
                 deleteProjeto(id, usuarioId);
-                deleted.put(id, "success");
-            } catch(EntityNotFoundException | BadCredentialsException e) {
+                deleted.add(id);
+            } catch (EntityNotFoundException | BadCredentialsException e) {
                 failed.put(id, e.getMessage());
             }
         }
-        Map<String, Map<Integer, String>> result = new HashMap<>();
-        result.put("deleted", deleted);
-        result.put("failed", failed);
 
-        return result;
+        return new ProjetosDeletadosResponseDTO(deleted, failed);
     }
 }
