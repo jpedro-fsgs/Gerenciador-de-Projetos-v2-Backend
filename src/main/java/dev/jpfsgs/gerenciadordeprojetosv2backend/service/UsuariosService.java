@@ -2,6 +2,7 @@ package dev.jpfsgs.gerenciadordeprojetosv2backend.service;
 
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.AtualizarUsuarioRequestDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.CadastrarUsuarioRequestDTO;
+import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.UsuarioDeletadoResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.UsuarioResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.exception.custom.UserAlreadyExistsException;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Usuarios;
@@ -62,11 +63,13 @@ public class UsuariosService {
         return new UsuarioResponseDTO(usuariosRepository.save(updateUsuario));
     }
 
-    public void deleteUsuario(Integer id){
+    public UsuarioDeletadoResponseDTO deleteUsuario(Integer id){
         Optional<Usuarios> deleteUsuarioOpt = usuariosRepository.findById(id);
         if(deleteUsuarioOpt.isEmpty()){
             throw new EntityNotFoundException("User not found");
         }
-        usuariosRepository.delete(deleteUsuarioOpt.get());
+        Usuarios deletedUsuario = deleteUsuarioOpt.get();
+        usuariosRepository.delete(deletedUsuario);
+        return new UsuarioDeletadoResponseDTO(true, deletedUsuario.getUsername(), deletedUsuario.getId());
     }
 }

@@ -2,6 +2,7 @@ package dev.jpfsgs.gerenciadordeprojetosv2backend.controller;
 
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.AtualizarUsuarioRequestDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.request.CadastrarUsuarioRequestDTO;
+import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.UsuarioDeletadoResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response.UsuarioResponseDTO;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.service.UsuariosService;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -35,8 +36,8 @@ public class UsuariosController {
     }
 
     @DeleteMapping("/deletar")
-    public void deletarUsuario(JwtAuthenticationToken token){
-        usuariosService.deleteUsuario(Integer.parseInt(token.getName()));
+    public UsuarioDeletadoResponseDTO deletarUsuario(JwtAuthenticationToken token){
+        return usuariosService.deleteUsuario(Integer.parseInt(token.getName()));
     }
 
 }
