@@ -45,7 +45,7 @@ public class TokenService {
 
         String jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        return new LoginResponseDTO(jwtValue, expiresIn);
+        return new LoginResponseDTO(jwtValue, expiresIn, user.get().getId(), user.get().getUsername());
     }
 
     public String userById(Integer id){
