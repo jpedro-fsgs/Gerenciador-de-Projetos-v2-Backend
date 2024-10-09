@@ -1,0 +1,27 @@
+allowed:
+    origins: ${ALLOWED_ORIGINS}
+jwt:
+    private:
+        key: classpath:app.key
+    public:
+        key: classpath:app.pub
+server:
+    port: ${SERVER_PORT}
+spring:
+    application:
+        name: Gerenciador de Projetos V2 Backend
+    config:
+        import: optional:file:.env[.properties]
+    data:
+        redis:
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+    datasource:
+        password: ${DATABASE_PASSWORD}
+        url: ${DATABASE_URL}
+        username: ${DATABASE_USER}
+springdoc:
+    api-docs:
+        path: /api-docs
+    swagger-ui:
+        path: /docs

@@ -10,6 +10,8 @@ import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Usuarios;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.ProjetosRepository;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.repository.UsuariosRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class ProjetosService {
         this.usuariosRepository = usuariosRepository;
     }
 
+    @Cacheable("projetos-publicos")
     public List<ProjetoPublicoResponseDTO> getAllProjetosPublicos() {
         List<Projetos> projetos = projetosRepository.findAll();
         if (projetos.isEmpty()) {
@@ -33,6 +36,7 @@ public class ProjetosService {
         return projetos.stream().filter(Projetos::getIsPublico).map(ProjetoPublicoResponseDTO::new).toList();
     }
 
+    @Cacheable("projetos-usuario")
     public List<ProjetoUsuarioResponseDTO> getProjetosUsuario(Integer usuarioId) {
         Optional<Usuarios> usuariosOptional = usuariosRepository.findById(usuarioId);
         if (usuariosOptional.isEmpty()) {
@@ -42,6 +46,7 @@ public class ProjetosService {
         return usuario.getProjetos().stream().map(ProjetoUsuarioResponseDTO::new).toList();
     }
 
+    @CacheEvict(value = {"projetos-publicos", "projetos-usuario"}, allEntries = true)
     public ProjetoUsuarioResponseDTO addProjeto(CriarProjetoRequestDTO projeto, Integer usuarioId) {
         Optional<Usuarios> usuarioOptional = usuariosRepository.findById(usuarioId);
         if (usuarioOptional.isEmpty()) {
@@ -58,12 +63,14 @@ public class ProjetosService {
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(newProjeto));
     }
 
+    @CacheEvict(value = {"projetos-publicos", "projetos-usuario"}, allEntries = true)
     public List<ProjetoUsuarioResponseDTO> addManyProjeto(List<CriarProjetoRequestDTO> projetos, Integer usuarioId) {
         return projetos.stream()
                 .map(newProjeto -> addProjeto(newProjeto, usuarioId))
                 .toList();
     }
 
+    @CacheEvict(value = {"projetos-publicos", "projetos-usuario"}, allEntries = true)
     public ProjetoUsuarioResponseDTO updateProjeto(AtualizarProjetoRequestDTO projeto, Integer usuarioId) {
         Optional<Projetos> updateProjetoFind = projetosRepository.findById(projeto.id());
         Optional<Usuarios> updateUsuarioFind = usuariosRepository.findById(usuarioId);
@@ -87,10 +94,12 @@ public class ProjetosService {
             if (prazoNull) updateProjeto.setPrazo(null);
         });
         projeto.is_publico().ifPresent(updateProjeto::setIsPublico);
+        projeto.is_concluido().ifPresent(updateProjeto::setIsConcluido);
 
         return new ProjetoUsuarioResponseDTO(projetosRepository.save(updateProjeto));
     }
 
+    @CacheEvict(value = {"projetos-publicos", "projetos-usuario"}, allEntries = true)
     public void deleteProjeto(Integer id, Integer usuarioId) {
         Optional<Projetos> deleteProjetoFind = projetosRepository.findById(id);
         if (deleteProjetoFind.isEmpty()) {
@@ -103,6 +112,7 @@ public class ProjetosService {
         projetosRepository.delete(deleteProjeto);
     }
 
+    @CacheEvict(value = {"projetos-publicos", "projetos-usuario"}, allEntries = true)
     public ProjetosDeletadosResponseDTO deleteManyProjetos(List<Integer> ids, Integer usuarioId) {
         List<Integer> deleted = new ArrayList<>();
         Map<Integer, String> failed = new HashMap<>();

@@ -3,11 +3,12 @@ package dev.jpfsgs.gerenciadordeprojetosv2backend.dto.response;
 import dev.jpfsgs.gerenciadordeprojetosv2backend.model.Projetos;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
-public class ProjetoUsuarioResponseDTO {
+public class ProjetoUsuarioResponseDTO implements Serializable {
     private final Integer id;
     private final String nome;
     private final String descricao;
