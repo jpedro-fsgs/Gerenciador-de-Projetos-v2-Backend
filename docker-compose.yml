@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    container_name: gerenciador-de-projetos-backend
+    ports:
+      - "${SERVER_PORT}:8080"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    restart: on-failure
+
+  db:
+    image: postgres:13
+    container_name: gerenciador-de-projetos-db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DATABASE_PORT}:5432"
+  redis:
+    image: redis:7.4.1-alpine
+    container_name: gerenciador-de-projetos-redis
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+
+volumes:
+  postgres_data:
+  redis_data:

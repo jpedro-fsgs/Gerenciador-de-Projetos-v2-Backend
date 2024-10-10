@@ -5,8 +5,6 @@ jwt:
         key: classpath:app.key
     public:
         key: classpath:app.pub
-server:
-    port: ${SERVER_PORT}
 spring:
     application:
         name: Gerenciador de Projetos V2 Backend
@@ -20,6 +18,9 @@ spring:
         password: ${DATABASE_PASSWORD}
         url: ${DATABASE_URL}
         username: ${DATABASE_USER}
+    jpa:
+        hibernate:
+            ddl-auto: update
 springdoc:
     api-docs:
         path: /api-docs
