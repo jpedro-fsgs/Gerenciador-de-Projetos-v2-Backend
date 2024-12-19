@@ -21,8 +21,3 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
-springdoc:
-    api-docs:
-        path: /api-docs
-    swagger-ui:
-        path: /docs
