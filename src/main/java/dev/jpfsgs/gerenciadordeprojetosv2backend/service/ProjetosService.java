@@ -30,9 +30,7 @@ public class ProjetosService {
     @Cacheable("projetos-publicos")
     public List<ProjetoPublicoResponseDTO> getAllProjetosPublicos() {
         List<Projetos> projetos = projetosRepository.findAll();
-        if (projetos.isEmpty()) {
-            throw new EntityNotFoundException("No projects found");
-        }
+
         return projetos.stream().filter(Projetos::getIsPublico).map(ProjetoPublicoResponseDTO::new).toList();
     }
 
