@@ -6,6 +6,8 @@ jwt:
     public:
         key: classpath:app.pub
 spring:
+    profiles:
+        active: default
     application:
         name: Gerenciador de Projetos V2 Backend
     config:
@@ -15,9 +17,9 @@ spring:
             host: ${REDIS_HOST}
             port: ${REDIS_PORT}
     datasource:
-        password: ${DATABASE_PASSWORD}
-        url: ${DATABASE_URL}
-        username: ${DATABASE_USER}
+        password: ${POSTGRES_PASSWORD}
+        username: ${POSTGRES_USER}
+        url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_USER:postgres}
     jpa:
         hibernate:
             ddl-auto: update

@@ -4,8 +4,8 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM openjdk:22-jdk-slim
+FROM eclipse-temurin:22-jre-alpine
 WORKDIR /app
 VOLUME /tmp
-COPY --from=build /app/target/*.jar /app/gerenciador-de-projetos-v2-backend-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/app/gerenciador-de-projetos-v2-backend-0.0.1-SNAPSHOT.jar"]
+COPY --from=build /app/target/gerenciador-de-projetos-v2-backend-0.0.1-SNAPSHOT.jar /app/app.jar
+CMD ["java", "-jar", "/app/app.jar"]
