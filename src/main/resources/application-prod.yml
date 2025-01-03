@@ -1,0 +1,22 @@
+allowed:
+    origins: ${ALLOWED_ORIGINS}
+jwt:
+    private:
+        key: ${PRIVATE_KEY}
+    public:
+        key: ${PUBLIC_KEY}
+spring:
+    config:
+        import:
+            - optional:configtree:/run/secrets/
+    data:
+        redis:
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+    datasource:
+        password: ${POSTGRES_PASSWORD}
+        username: ${POSTGRES_USER}
+        url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_USER}
+    jpa:
+        hibernate:
+            ddl-auto: update

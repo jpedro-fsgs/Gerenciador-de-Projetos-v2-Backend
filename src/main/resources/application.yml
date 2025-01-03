@@ -1,25 +1,5 @@
-allowed:
-    origins: ${ALLOWED_ORIGINS}
-jwt:
-    private:
-        key: classpath:app.key
-    public:
-        key: classpath:app.pub
 spring:
     profiles:
-        active: default
+        active: dev
     application:
         name: Gerenciador de Projetos V2 Backend
-    config:
-        import: optional:file:.env[.properties]
-    data:
-        redis:
-            host: ${REDIS_HOST}
-            port: ${REDIS_PORT}
-    datasource:
-        password: ${POSTGRES_PASSWORD}
-        username: ${POSTGRES_USER}
-        url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_USER:postgres}
-    jpa:
-        hibernate:
-            ddl-auto: update

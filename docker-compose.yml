@@ -1,4 +1,21 @@
 services:
+  traefik:
+    image: traefik:3.2.3
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./acme.json:/acme.json"
+    command:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--api.dashboard=false"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+    restart: unless-stopped
   app:
     image: jpedrofsgs/gerenciador-de-projetos-v2:1.0
     container_name: gerenciador-de-projetos-backend
@@ -11,6 +28,12 @@ services:
       - redis
     env_file:
       - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.gerenciadordeprojetos.myouijava.tech`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+    restart: unless-stopped
 
   postgres:
     image: postgres:17-alpine
@@ -21,6 +44,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    restart: unless-stopped
   redis:
     image: redis:7.4.1-alpine
     container_name: gerenciador-de-projetos-redis
@@ -30,6 +54,7 @@ services:
       - redis_data:/data
     ports:
       - "6379:6379"
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -1,0 +1,26 @@
+allowed:
+    origins: ${ALLOWED_ORIGINS}
+jwt:
+    private:
+        key: ${PRIVATE_KEY:classpath:app.key}
+    public:
+        key: ${PUBLIC_KEY:classpath:app.pub}
+spring:
+    docker:
+        compose:
+          file: docker-compose.spring.yml
+    config:
+        import:
+            - optional:file:.env[.properties]
+            - optional:configtree:/run/secrets/
+    data:
+        redis:
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+    datasource:
+        password: ${POSTGRES_PASSWORD}
+        username: ${POSTGRES_USER}
+        url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_USER:postgres}
+    jpa:
+        hibernate:
+            ddl-auto: update

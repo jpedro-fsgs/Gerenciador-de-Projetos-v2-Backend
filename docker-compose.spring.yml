@@ -1,0 +1,26 @@
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: gerenciador-de-projetos-db
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+  redis:
+    image: redis:7.4.1-alpine
+    container_name: gerenciador-de-projetos-redis
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
