@@ -2,9 +2,9 @@ allowed:
     origins: ${ALLOWED_ORIGINS}
 jwt:
     private:
-        key: file:${PRIVATE_KEY}
+        key: file:/run/secrets/private_key
     public:
-        key: file:${PUBLIC_KEY}
+        key: file:/run/secrets/public_key
 spring:
     config:
         import:

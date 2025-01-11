@@ -23,8 +23,6 @@ services:
       - "8080:8080"
     environment:
       POSTGRES_HOST: postgres
-      PRIVATE_KEY: /run/secrets/app.key
-      PUBLIC_KEY: /run/secrets/app.pub
     depends_on:
       - postgres
       - redis
