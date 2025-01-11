@@ -23,11 +23,16 @@ services:
       - "8080:8080"
     environment:
       POSTGRES_HOST: postgres
+      PRIVATE_KEY: /run/secrets/app.key
+      PUBLIC_KEY: /run/secrets/app.pub
     depends_on:
       - postgres
       - redis
     env_file:
       - .env
+    secrets:
+      - private_key
+      - public_key
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.gerenciadordeprojetos.myouijava.tech`)"
@@ -59,3 +64,9 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
+secrets:
+  private_key:
+    file: ./app.key
+  public_key:
+    file: ./app.pub

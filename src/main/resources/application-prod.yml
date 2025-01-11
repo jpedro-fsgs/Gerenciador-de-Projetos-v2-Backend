@@ -2,13 +2,13 @@ allowed:
     origins: ${ALLOWED_ORIGINS}
 jwt:
     private:
-        key: ${PRIVATE_KEY}
+        key: file:${PRIVATE_KEY}
     public:
-        key: ${PUBLIC_KEY}
+        key: file:${PUBLIC_KEY}
 spring:
     config:
         import:
-            - optional:configtree:/run/secrets/
+            - optional:file:.env[.properties]
     data:
         redis:
             host: ${REDIS_HOST}
