@@ -1,5 +1,5 @@
 spring:
     profiles:
-        active: dev
+        active: prod
     application:
         name: Gerenciador de Projetos V2 Backend
