@@ -12,4 +12,6 @@ jobs:
       - name: build image
         run: docker build . -t jpedrofsgs/gerenciador-de-projetos-v2:latest
       - name: push image to docker hub
-        run: docker push jpedrofsgs/gerenciador-de-projetos-v2:latest
+        run: |
+          docker login -u jpedrofsgs -p ${{DOCKER_HUB_TOKEN}}
+          docker push jpedrofsgs/gerenciador-de-projetos-v2:latest
