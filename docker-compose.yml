@@ -1,4 +1,13 @@
 services:
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    environment:
+      - WATCHTOWER_CLEANUP=true
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    command: --interval 300 --label-enable
+    restart: unless-stopped
   traefik:
     image: traefik:3.2.3
     ports:
@@ -32,6 +41,7 @@ services:
       - private_key
       - public_key
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`api.gerenciadordeprojetos.myouijava.tech`)"
       - "traefik.http.routers.backend.entrypoints=websecure"
