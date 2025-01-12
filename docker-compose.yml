@@ -17,7 +17,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
     restart: unless-stopped
   app:
-    image: jpedrofsgs/gerenciador-de-projetos-v2:1.0
+    image: jpedrofsgs/gerenciador-de-projetos-v2:latest
     container_name: gerenciador-de-projetos-backend
     ports:
       - "8080:8080"
