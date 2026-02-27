@@ -1,0 +1,65 @@
+# Gerenciador de Projetos
+
+https://gerenciadordeprojetos.goncalvespedro.tech/
+
+## Descrição
+Aplicação Web para criar, editar, remover e gerenciar projetos, com opção de incluir prazo e descrição.
+
+![Lista de Projetos](screenshots/tela_visualizar.jpeg)
+|Desktop|Mobile|
+| - | - |
+| ![Adicionar Projeto](screenshots/tela_adicionar.jpeg 'title A') | ![Lista de Projetos Mobile](screenshots/tela_selecione_mobile.jpeg 'title B') |
+
+|||
+| - | - |
+| ![Editar Projetos](screenshots/tela_editar.jpeg 'title A') | ![git hooks](screenshots/tela_remover_mobile.jpeg 'title B') |
+
+### Darkmode
+
+|||
+| - | - |
+| ![Lista de Projetos](screenshots/tela_visualizar_dark.jpeg 'title A') | ![Remover Projetos](screenshots/tela_remover_mobile_dark.jpeg 'title B') |
+
+
+
+
+## Funcionalidades
+- Visualizar todos os projetos
+- Adicionar novo projeto
+- Editar projeto
+- Remover projetos
+
+## Tecnologias Utilizadas
+
+### Backend
+- **Linguagem**: Java
+- **Framework**: Spring Boot
+- **Banco de Dados**: PostgreSQL
+- **ORM**: Spring Data JPA
+- **Hospedagem**: VPS
+
+### Frontend
+- **Linguagens**: HTML, CSS, JavaScript
+- **Frameworks/Bibliotecas**: Bootstrap, SASS, jQuery
+- **Hospedagem**: Vercel
+
+## Endpoints da API
+
+### Projetos
+- **GET /projetos**
+  - Descrição: Obter todos os projetos
+
+- **POST /projeto/criar**
+  - Descrição: Registrar um novo projeto
+
+- **POST /projetos/criar**
+  - Descrição: Registrar múltiplos projetos
+
+- **PUT /projeto/editar**
+  - Descrição: Alterar um projeto existente
+
+- **DELETE /projeto/deletar**
+  - Descrição: Remover um projeto
+
+- **DELETE /projetos/deletar**
+  - Descrição: Remover múltiplos projetos
